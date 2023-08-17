@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html><head>
+	
+        <title> Flappy Bird </title>
+		
+		<style>
+		
+			#canvas {
+    
+				background-color: black;
+				
+				height: 75vh;
+				 
+			}
+			
+			
+			body {
+			
+				font-family: Helvetica;
+				background: #bbb;
+			}
+            
+		
+		</style>
+		
+    </head>
+    <body>
+	
+        <canvas height="450" width="375" id="canvas"></canvas> <br> <br>
+		
+		<a href="../mysite.html"> Back to my website </a>
+		
+		<script>
+			
+			const canvas = document.getElementById("canvas");
+			const ctx = canvas.getContext("2d");
+			let amount = 65
+			const w = canvas.width;
+			const h = canvas.height;
+			let x = 40;
+			let y = canvas.height/2;
+			const r = 15;
+			const gravity = 0.3;
+			let velocity = 0;
+			let upPressed = false;
+			let pipes = [];
+			let opening = [];
+			let time = 0;
+			let score = 0;
+			let wait = 0;
+			let scores = [0];
+			let fillStyle = "white";
+
+			
+			function controls() {
+				
+				document.addEventListener("keydown", downHandler);
+				document.addEventListener("keyup", upHandler);
+				
+				function downHandler(e) {
+					
+					if (e.keyCode === 38) {
+						
+						upPressed = true;
+						
+					}
+					
+				}
+				
+				function upHandler(e) {
+					
+					if (e.keyCode === 38) {
+						
+						upPressed = false;
+						
+					}
+					
+				}
+				
+			}
+			
+			function drawPipes() {
+				
+				const x = canvas.width;
+				const y = 0;
+				const speed = 5;
+				const bx = canvas.width-1;
+				const by = Math.floor(Math.random() * 250) + 75;
+				
+				if (time%amount <= 0) {
+					
+					pipes.push({"x": x, "y": y, "s": speed});
+					opening.push({"x":bx, "y": by, "s": speed});
+					
+				}
+			   
+			}
+			
+			function trackPipes() {
+				
+				drawPipes();
+				
+				for (let i = 0; i < pipes.length; i++) {
+						
+					   ctx.fillStyle = "white";
+					   ctx.fillRect(pipes[i].x-=pipes[i].s*0.5, pipes[i].y, 20, canvas.height)+75;
+
+					if (pipes[i].x < -200) {
+						
+						pipes.splice(i, 1);
+						
+					}
+					
+				}
+				
+				for (let j = 0; j < opening.length; j++) {
+					
+						ctx.fillStyle = "black";
+						ctx.fillRect(opening[j].x-=opening[j].s*0.5, opening[j].y, 22, 100);
+
+					if (opening[j].x < -200) {
+						
+						opening.splice(j, 1);
+						
+					}
+
+					if (y-r < opening[j].y || y > opening[j].y+75) {
+						
+						if (x > opening[j].x && x < opening[j].x+22) {
+						
+							if (score > 0) {
+							
+								scores.push(score);
+							
+							}
+							
+							fillStyle = "red";
+							score = 0;
+						
+						}
+						
+					} else if (y > opening[j].y && y < opening[j].y+75 && x > opening[j].x && x < opening[j].x+2.5) {
+						fillStyle = "white";
+						score++;
+						
+					}
+					
+				}
+				
+			} 
+			
+			function bird() {
+				
+				ctx.beginPath();
+				ctx.fillStyle = fillStyle;
+				ctx.arc(x, y, r, 0, Math.PI*2);
+				ctx.fill();
+				ctx.closePath();
+
+			}
+			
+			function moveBird() {
+				
+				velocity+=gravity;
+				y+=velocity;
+				
+				if (y > canvas.height) {
+					
+					y = canvas.height;
+					
+				} else if (y < 0) {
+					
+					y = 0;
+					
+				}
+				
+				if (upPressed) {
+					
+					velocity = -6;
+					
+				}
+				
+			}
+			
+			function drawText() {
+			
+				let m = Math.max.apply(null, scores);
+				
+				ctx.font="20px Arial";
+				ctx.fillStyle = "gray";
+				ctx.fillText("Score: " + score, 270, 20);
+				ctx.fillText("Highscore: " + m, 10, 20);
+				
+			}
+			
+			function draw() {
+				
+				if (wait >= 10) {
+				
+					controls();
+					trackPipes();
+					bird();
+					moveBird();
+					drawText();
+				
+				}
+				
+			}
+			
+			function update() {
+				
+				ctx.clearRect(0, 0, w, h);
+				
+				time++;
+				
+				wait++;
+				
+				draw();
+			
+				requestAnimationFrame(update);
+				
+			}
+			
+			update();
+		
+		</script>
+		
+    
+</body></html>
